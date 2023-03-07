@@ -4,7 +4,10 @@ import {
   ModalOverlay,
   useDisclosure
 } from '@chakra-ui/react'
-import { GoogleMap, MarkerF, useLoadScript } from '@react-google-maps/api'
+import { Loader } from '@googlemaps/js-api-loader'
+import {
+  GoogleMap, InfoWindow, MarkerF, useLoadScript
+} from '@react-google-maps/api'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { NextSeo } from 'next-seo'
@@ -12,6 +15,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { MdMyLocation } from 'react-icons/md'
 
 import ReportForm from '../components/ReportForm'
+import useReports from '../lib/hooks/useReports'
 import { type Coords, parseCoords } from '../lib/util'
 
 const SD_COORDS: Coords = { lat: 32.716, lng: -117.161 }
@@ -24,9 +28,11 @@ export default function Map() {
   const router = useRouter()
   const query = router.query
 
+  const { reports, isLoading, error } = useReports()
   const [lat, setLat] = useState(SD_COORDS.lat)
   const [lng, setLng] = useState(SD_COORDS.lng)
   const [watchID, setWatchID] = useState(0)
+  const [selectedMarker, setSelectedMarker] = useState(null)
 
   // Controls report form modal
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -78,7 +84,8 @@ export default function Map() {
     }
   }, [query, watchID])
 
-  if (!isLoaded) return <div>loading...</div>
+  if (!isLoaded || isLoading || !reports) return <div>loading...</div>
+  if (error) return <div>Failed to load the page...</div>
 
   return (
     <>
@@ -106,8 +113,27 @@ export default function Map() {
           center={center}
           mapContainerStyle={{ width: '100%', height: '50vh' }}
         >
-          <MarkerF position={center} onLoad={onLoad} title="raster"
-            icon={{ url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', scaledSize: new window.google.maps.Size(40, 40) }} />
+          <MarkerF
+            position={center}
+            onLoad={onLoad}
+            onClick={() => {
+              setSelectedMarker(null)
+            }}
+            title="raster"
+            icon={{
+              url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
+              scaledSize: new window.google.maps.Size(40, 40),
+            }} />
+          {selectedMarker && (
+            <InfoWindow
+              position={center}
+              onCloseClick={() => setSelectedMarker(null)}
+            >
+              <div>
+                <img src={selectedMarker} alt="Report" />
+              </div>
+            </InfoWindow>
+          )}
         </GoogleMap>
 
         <Button colorScheme="facebook" mt={5} onClick={onOpen}>Create Report</Button>
