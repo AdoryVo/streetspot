@@ -1,10 +1,9 @@
 import {
-  Box, Button, Container, Heading,
+  Button, Container, Heading,
   Modal,
   ModalOverlay,
   useDisclosure
 } from '@chakra-ui/react'
-import { Loader } from '@googlemaps/js-api-loader'
 import { GoogleMap, MarkerF, useLoadScript } from '@react-google-maps/api'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -14,8 +13,6 @@ import { MdMyLocation } from 'react-icons/md'
 
 import ReportForm from '../components/ReportForm'
 import { type Coords, parseCoords } from '../lib/util'
-
-
 
 const SD_COORDS: Coords = { lat: 32.716, lng: -117.161 }
 const WATCH_OPTIONS: PositionOptions = {
@@ -84,23 +81,12 @@ export default function Map() {
   if (!isLoaded) return <div>loading...</div>
 
   return (
-    <GoogleMap
-      zoom={18}
-      center={center}
-      mapContainerStyle={{ width: '50%', height: '50vh' }}
-    >
-      <MarkerF position={center} onLoad={onLoad} title="raster"
-        icon={{ url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', scaledSize: new window.google.maps.Size(40, 40) }} />
-    </GoogleMap>
-  )
-
-  return (
     <>
       <NextSeo
         title="Map | Streetspot"
         description="Report local infrastructure issues to raise awareness and improve your city."
       />
-      <Container p={5}>
+      <Container p={5} maxW="container.xl">
         <Link href="/" passHref>
           <Button colorScheme="facebook" mb={4} me={2}>Home</Button>
         </Link>
@@ -114,6 +100,15 @@ export default function Map() {
         <p>
           Coords: ({lat}, {lng})
         </p>
+
+        <GoogleMap
+          zoom={18}
+          center={center}
+          mapContainerStyle={{ width: '100%', height: '50vh' }}
+        >
+          <MarkerF position={center} onLoad={onLoad} title="raster"
+            icon={{ url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', scaledSize: new window.google.maps.Size(40, 40) }} />
+        </GoogleMap>
 
         <Button colorScheme="facebook" mt={5} onClick={onOpen}>Create Report</Button>
         <Modal isOpen={isOpen} onClose={onClose}>
