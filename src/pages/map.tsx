@@ -32,7 +32,7 @@ export default function Map() {
   const [lat, setLat] = useState(SD_COORDS.lat)
   const [lng, setLng] = useState(SD_COORDS.lng)
   const [watchID, setWatchID] = useState(0)
-  const [selectedMarker, setSelectedMarker] = useState(null)
+  const [selectedMarker, setSelectedMarker] = useState(false)
 
   // Controls report form modal
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -107,30 +107,39 @@ export default function Map() {
         <p>
           Coords: ({lat}, {lng})
         </p>
+        {JSON.stringify(reports[1])}
 
         <GoogleMap
           zoom={18}
           center={center}
           mapContainerStyle={{ width: '100%', height: '50vh' }}
         >
-          <MarkerF
-            position={center}
-            onLoad={onLoad}
-            onClick={() => {
-              setSelectedMarker(null)
-            }}
-            title="raster"
-            icon={{
-              url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
-              scaledSize: new window.google.maps.Size(40, 40),
-            }} />
-          {selectedMarker && (
+          {reports.map((report) =>
+            <MarkerF
+              key={report.id}
+              position={{ lat: report.lat, lng: report.lng }}
+              onLoad={onLoad}
+              onClick={() => {
+                setSelectedMarker(true)
+              }}
+              title="raster"
+              icon={{
+                url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
+                scaledSize: new window.google.maps.Size(40, 40),
+              }} />
+          )}
+          {reports.map((report) =>
             <InfoWindow
-              position={center}
-              onCloseClick={() => setSelectedMarker(null)}
+              key={report.id}
+              position={{ lat: report.lat, lng: report.lng }}
+              //onCloseClick={() => setSelectedMarker(false)}
             >
               <div>
-                <img src={selectedMarker} alt="Report" />
+                {report.title}
+                {report.description}
+                {report.image &&
+                  <img src={`https://streetspot.s3.amazonaws.com/${report.image}`} alt="Report" width="144" />
+                }
               </div>
             </InfoWindow>
           )}
