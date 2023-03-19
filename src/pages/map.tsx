@@ -5,12 +5,14 @@ import {
   useDisclosure
 } from '@chakra-ui/react'
 import { Loader } from '@googlemaps/js-api-loader'
+import type { Report } from '@prisma/client'
 import {
-  GoogleMap, InfoWindow, MarkerF, useLoadScript
+  GoogleMap, InfoWindowF, MarkerF, useLoadScript
 } from '@react-google-maps/api'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { NextSeo } from 'next-seo'
+import { eventNames } from 'process'
 import { useEffect, useMemo, useState } from 'react'
 import { MdMyLocation } from 'react-icons/md'
 
@@ -32,7 +34,8 @@ export default function Map() {
   const [lat, setLat] = useState(SD_COORDS.lat)
   const [lng, setLng] = useState(SD_COORDS.lng)
   const [watchID, setWatchID] = useState(0)
-  const [selectedMarker, setSelectedMarker] = useState(false)
+  const [selectedMarker, setSelectedMarker] = useState('')
+  const [selectedReport, setSelectedReport] = useState<Report|null>(null)
 
   // Controls report form modal
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -40,6 +43,7 @@ export default function Map() {
   const { isLoaded } = useLoadScript({ googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '' })
 
   const center = useMemo(() => ({ lat, lng }), [lat, lng])
+
 
   const onLoad = (marker: google.maps.Marker) => {
     console.log('marker: ', marker)
@@ -113,36 +117,41 @@ export default function Map() {
           zoom={18}
           center={center}
           mapContainerStyle={{ width: '100%', height: '50vh' }}
+          options={{ disableDefaultUI: true }}
         >
           {reports.map((report) =>
             <MarkerF
               key={report.id}
               position={{ lat: report.lat, lng: report.lng }}
-              onLoad={onLoad}
-              onClick={() => {
-                setSelectedMarker(true)
-              }}
               title="raster"
               icon={{
                 url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
                 scaledSize: new window.google.maps.Size(40, 40),
-              }} />
+              }}
+              onClick={() => setSelectedReport(report)}
+            />
           )}
-          {reports.map((report) =>
-            <InfoWindow
-              key={report.id}
-              position={{ lat: report.lat, lng: report.lng }}
-              //onCloseClick={() => setSelectedMarker(false)}
+
+          {selectedReport &&
+            <InfoWindowF
+              position={{ lat: selectedReport.lat, lng: selectedReport.lng }}
+              onCloseClick={() => setSelectedReport(null)}
             >
               <div>
-                {report.title}
-                {report.description}
-                {report.image &&
-                  <img src={`https://streetspot.s3.amazonaws.com/${report.image}`} alt="Report" width="144" />
+                <h3 style={{ fontSize: '24px', color: 'black' }}>
+                  {selectedReport.title}
+                  <span style={{ fontSize: '20px' }}> ({selectedReport.category})</span>
+                </h3>
+                {selectedReport.image &&
+                <img src={`https://streetspot.s3.amazonaws.com/${selectedReport.image}`} alt="Report" width="144" />
+                }
+                {selectedReport.description &&
+                <p style={{ color: 'black' }}>{selectedReport.description}</p>
                 }
               </div>
-            </InfoWindow>
-          )}
+            </InfoWindowF>
+          }
+          {}
         </GoogleMap>
 
         <Button colorScheme="facebook" mt={5} onClick={onOpen}>Create Report</Button>
