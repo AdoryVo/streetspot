@@ -1,14 +1,23 @@
 import {
-  Button, Container, Heading, VStack
+  Button, Container, Heading,   Skeleton, SkeletonCircle, SkeletonText,
+  VStack
 } from '@chakra-ui/react'
 import Link from 'next/link'
 import { NextSeo } from 'next-seo'
+import { useEffect, useState } from 'react'
 
 import Report from '../components/Report'
 import useReports from '../lib/hooks/useReports'
 
 export default function Reports() {
   const { reports, error } = useReports()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (reports && !error) {
+      setLoading(false)
+    }
+  }, [reports, error])
 
   if (error) return <div>Failed to load the page...</div>
 
@@ -28,11 +37,13 @@ export default function Reports() {
           </Button>
         </Link>
         <Heading mb={5}>Reports</Heading>
-        <VStack spacing={5}>
-          {reports && reports.map((report) => (
-            <Report key={report.id + new Date().toISOString()} report={report} />
-          ))}
-        </VStack>
+        <Skeleton isLoaded={!loading}>
+          <VStack spacing={5}>
+            {reports && reports.map((report) => (
+              <Report key={report.id + new Date().toISOString()} report={report} />
+            ))}
+          </VStack>
+        </Skeleton>
       </Container>
     </>
   )
