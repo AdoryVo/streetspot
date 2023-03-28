@@ -18,12 +18,25 @@ import {
 } from '@chakra-ui/react'
 import ky from 'ky'
 import ErrorPage from 'next/error'
+import { type } from 'os'
 import { useEffect, useState } from 'react'
 import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md'
+
+import Report from '../components/Report'
+import useReports from '../lib/hooks/useReports'
 
 function AdminDashboard() {
   const { colorMode } = useColorMode()
   const [isAdmin, setIsAdmin] = useState(false)
+  const { reports = [], error } = useReports()
+
+  const handleDelete = async (id: string) => {
+    try {
+      await ky.delete(`/api/admin/delete?id=${id}`)
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   useEffect(() => {
     ky.get('api/admin/auth').then(() => {
@@ -32,6 +45,8 @@ function AdminDashboard() {
       return
     })
   })
+
+  if (error) return <div>Failed to load the page...</div>
 
   if (!isAdmin) return <ErrorPage statusCode={404} />
 
@@ -59,58 +74,35 @@ function AdminDashboard() {
                 </Tr>
               </Thead>
               <Tbody>
-                <Tr>
-                  <Td>
-                    <Text fontWeight="bold">Lorem ipsum dolor sit amet</Text>
-                  </Td>
-                  <Td>2022-03-20</Td>
-                  <Td>
-                    <IconButton
-                      icon={<MdEdit />}
-                      size="xs"
-                      mr={2}
-                      aria-label="Edit post"
-                    />
-                    <IconButton
-                      icon={<MdVisibility />}
-                      size="xs"
-                      mr={2}
-                      aria-label="View post"
-                    />
-                    <IconButton
-                      icon={<MdDelete />}
-                      size="xs"
-                      aria-label="Delete post"
-                      colorScheme="red"
-                    />
-                  </Td>
-                </Tr>
-                <Tr>
-                  <Td>
-                    <Text fontWeight="bold">Consectetur adipiscing elit</Text>
-                  </Td>
-                  <Td>2022-03-18</Td>
-                  <Td>
-                    <IconButton
-                      icon={<MdEdit />}
-                      size="xs"
-                      mr={2}
-                      aria-label="Edit post"
-                    />
-                    <IconButton
-                      icon={<MdVisibility />}
-                      size="xs"
-                      mr={2}
-                      aria-label="View post"
-                    />
-                    <IconButton
-                      icon={<MdDelete />}
-                      size="xs"
-                      aria-label="Delete post"
-                      colorScheme="red"
-                    />
-                  </Td>
-                </Tr>
+                {reports.map((report) => (
+                  <Tr key={report.id}>
+                    <Td>
+                      <Text fontWeight="bold">{report.title}</Text>
+                    </Td>
+                    <Td>{report.createdAt.toLocaleString()}</Td>
+                    <Td>
+                      <IconButton
+                        icon={<MdEdit />}
+                        size="xs"
+                        mr={2}
+                        aria-label="Edit post"
+                      />
+                      <IconButton
+                        icon={<MdVisibility />}
+                        size="xs"
+                        mr={2}
+                        aria-label="View post"
+                      />
+                      <IconButton
+                        icon={<MdDelete />}
+                        size="xs"
+                        aria-label="Delete post"
+                        colorScheme="red"
+                        onClick={() => handleDelete(report.id)}
+                      />
+                    </Td>
+                  </Tr>
+                ))}
               </Tbody>
             </Table>
           </Box>
@@ -151,24 +143,6 @@ function AdminDashboard() {
                   </Td>
                 </Tr>
                 <Tr>
-                  <Td>
-                    <Text fontWeight="bold">Jane Doe</Text>
-                  </Td>
-                  <Td>jane.doe@example.com</Td>
-                  <Td>
-                    <IconButton
-                      icon={<MdEdit />}
-                      size="xs"
-                      mr={2}
-                      aria-label="Edit user"
-                    />
-                    <IconButton
-                      icon={<MdDelete />}
-                      size="xs"
-                      aria-label="Delete user"
-                      colorScheme="red"
-                    />
-                  </Td>
                 </Tr>
               </Tbody>
             </Table>
