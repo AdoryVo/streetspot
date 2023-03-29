@@ -7,7 +7,9 @@ import ky from 'ky'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
-import { MdPlace, MdThumbDown, MdThumbUp } from 'react-icons/md'
+import {
+  MdPlace, MdShare, MdThumbDown, MdThumbUp
+} from 'react-icons/md'
 
 import { useFormattedTimestamp } from '../lib/hooks/useFormattedTimestamp'
 
@@ -66,6 +68,8 @@ export default function Report({ report }: { report: Report }) {
         </Button>
         <Button leftIcon={<MdThumbDown />} colorScheme="red" onClick={handleDislike}>
           {dislikes}
+        </Button>
+        <Button leftIcon={<MdShare />} colorScheme="cyan">
         </Button>
       </HStack>
       <Link href={`/map?lat=${report.lat}&lng=${report.lng}`} passHref>
