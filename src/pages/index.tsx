@@ -1,4 +1,6 @@
-import { Button, Container, Heading } from '@chakra-ui/react'
+import {
+  Button, Container, Heading, Input, VStack
+} from '@chakra-ui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { NextSeo } from 'next-seo'
@@ -54,13 +56,17 @@ export default function Home() {
   }, [])
 
   return (
-    <>
+    <VStack minHeight="50vh" justify="center" spacing="8">
       <NextSeo
         title="Streetspot"
         description="A platform for citizens to report local infrastructure issues and improve their city."
       />
       <Container p={5}>
         <Heading>Streetspot</Heading>
+        <br />
+        <Container p={5}>
+          <Input id="autocomplete" ml={-5} placeholder="Enter a location" type="text" ref={inputRef}></Input>
+        </Container>
         <Link href="/reports" passHref>
           <Button colorScheme="blue" mt={5} me={2}>
             Reports
@@ -71,14 +77,10 @@ export default function Home() {
             Map
           </Button>
         </Link>
-        <br />
-        <Container p={5}>
-          <input id="autocomplete" placeholder="Enter a place" type="text" ref={inputRef}></input>
-        </Container>
-        <Button leftIcon={<MdMyLocation />} colorScheme="facebook" mt={5} onClick={getCurrentLocation}>
+        <Button leftIcon={<MdMyLocation />} colorScheme="facebook" mt={5} ml={2} onClick={getCurrentLocation}>
           Use current location
         </Button>
       </Container>
-    </>
+    </VStack>
   )
 }
