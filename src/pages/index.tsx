@@ -1,5 +1,6 @@
 import {
-  Button, Container, Heading, Input, VStack
+  Button, Container, Heading, Input, Stack,
+  VStack
 } from '@chakra-ui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -56,31 +57,30 @@ export default function Home() {
   }, [])
 
   return (
-    <VStack minHeight="50vh" justify="center" spacing="8">
+    <Stack minHeight="65vh" spacing={8} align="center" justify="center">
       <NextSeo
         title="Streetspot"
         description="A platform for citizens to report local infrastructure issues and improve their city."
       />
+      <Heading>Streetspot</Heading>
       <Container p={5}>
-        <Heading>Streetspot</Heading>
-        <br />
-        <Container p={5}>
-          <Input id="autocomplete" ml={-5} placeholder="Enter a location" type="text" ref={inputRef}></Input>
-        </Container>
+        <Input id="autocomplete" placeholder="Enter a location" type="text" ref={inputRef} />
+      </Container>
+      <Stack direction="row" spacing={4} align="center">
         <Link href="/reports" passHref>
-          <Button colorScheme="blue" mt={5} me={2}>
+          <Button colorScheme="blue">
             Reports
           </Button>
         </Link>
         <Link href="/map" passHref>
-          <Button colorScheme="blue" mt={5}>
+          <Button colorScheme="blue">
             Map
           </Button>
         </Link>
-        <Button leftIcon={<MdMyLocation />} colorScheme="facebook" mt={5} ml={2} onClick={getCurrentLocation}>
-          Use current location
-        </Button>
-      </Container>
-    </VStack>
+      </Stack>
+      <Button leftIcon={<MdMyLocation />} colorScheme="facebook" onClick={getCurrentLocation}>
+        Use current location
+      </Button>
+    </Stack>
   )
 }
